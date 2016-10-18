@@ -1,6 +1,6 @@
-FROM openjdk:8-jdk
+FROM openjdk:8-jdk-alpine
 
-RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache git openssh-client curl zip unzip bash ttf-dejavu coreutils
 
 ENV JENKINS_HOME /var/jenkins_home
 ENV JENKINS_SLAVE_AGENT_PORT 50000
@@ -13,8 +13,8 @@ ARG gid=1000
 # Jenkins is run with user `jenkins`, uid = 1000
 # If you bind mount a volume from the host or a data container, 
 # ensure you use the same uid
-RUN groupadd -g ${gid} ${group} \
-    && useradd -d "$JENKINS_HOME" -u ${uid} -g ${gid} -m -s /bin/bash ${user}
+RUN addgroup -g ${gid} ${group} \
+    && adduser -h "$JENKINS_HOME" -u ${uid} -G ${group} -s /bin/bash -D ${user}
 
 # Jenkins home directory is a volume, so configuration and build history 
 # can be persisted and survive image upgrades
@@ -36,13 +36,13 @@ COPY init.groovy /usr/share/jenkins/ref/init.groovy.d/tcp-slave-agent-port.groov
 
 # jenkins version being bundled in this docker image
 ARG JENKINS_VERSION
-ENV JENKINS_VERSION ${JENKINS_VERSION:-2.19.1}
+ENV JENKINS_VERSION ${JENKINS_VERSION:-2.7.4}
 
 # jenkins.war checksum, download will be validated using it
-ARG JENKINS_SHA=dc28b91e553c1cd42cc30bd75d0f651671e6de0b
+ARG JENKINS_SHA=07a2e3e4ace728fdbcc823f46068d2f8cc3cb97b
 
 # Can be used to customize where jenkins.war get downloaded from
-ARG JENKINS_URL=https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/${JENKINS_VERSION}/jenkins-war-${JENKINS_VERSION}.war
+ARG JENKINS_URL=http://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/${JENKINS_VERSION}/jenkins-war-${JENKINS_VERSION}.war
 
 # could use ADD but this one does not check Last-Modified header neither does it allow to control checksum 
 # see https://github.com/docker/docker/issues/8331
@@ -59,6 +59,19 @@ EXPOSE 8080
 EXPOSE 50000
 
 ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
+
+RUN apk add --no-cache python
+
+# install gcloud sdk
+RUN curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-130.0.0-linux-x86_64.tar.gz -o /tmp/google-cloud-sdk.tar.gz \
+  && tar -zxvf /tmp/google-cloud-sdk.tar.gz \
+  && /google-cloud-sdk/install.sh -q 
+
+  # && /google-cloud-sdk/bin/gcloud init -q
+
+ADD ./accounts.json /root/.gcp/accounts.json
+
+RUN /google-cloud-sdk/bin/gcloud auth activate-service-account ${JENKINS_SVC_ACCOUNT} --key-file ~/.gcp/accounts.json
 
 USER ${user}
 
