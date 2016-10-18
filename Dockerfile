@@ -60,7 +60,7 @@ EXPOSE 50000
 
 ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 
-RUN apk add --no-cache python py-openssl openssl py-pip
+RUN apk add --no-cache python py-openssl openssl py-pip gcc
 
 RUN pip install --upgrade pip \
   && pip install --upgrade Scrapy
