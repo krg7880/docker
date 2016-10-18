@@ -83,6 +83,8 @@ RUN curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud
 
 ADD ./accounts.json /root/.gcp/accounts.json
 
+RUN cat /root/.gcp/accounts.json
+
 RUN CLOUDSDK_PYTHON_SITEPACKAGES=1 /google-cloud-sdk/bin/gcloud auth activate-service-account "JENKINS_SVC_ACCOUNT" --key-file /root/.gcp/accounts.json
 
 USER ${user}
