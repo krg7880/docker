@@ -64,6 +64,7 @@ RUN apk add --no-cache python \
   python-dev \
   py-openssl \
   openssl \
+  openssl-dev \
   py-pip \
   gcc \
   musl-dev \
