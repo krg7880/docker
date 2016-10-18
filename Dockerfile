@@ -69,7 +69,8 @@ RUN apk add --no-cache python \
   musl-dev \
   libxml2 \
   libxml2-dev \
-  libxslt-dev
+  libxslt-dev \
+  libffi-dev
 
 RUN pip install --upgrade pip \
   && pip install --upgrade Scrapy
