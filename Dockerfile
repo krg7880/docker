@@ -67,7 +67,7 @@ RUN curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud
   && tar -zxvf /tmp/google-cloud-sdk.tar.gz \
   && /google-cloud-sdk/install.sh -q 
 
-ADD /root/accounts.json /root/.gcp/accounts.json
+ADD ./accounts.json /root/.gcp/accounts.json
 RUN /google-cloud-sdk/bin/gcloud auth activate-service-account ${JENKINS_SVC_ACCOUNT} --key-file ~/.gcp/accounts.json
 
 USER ${user}
