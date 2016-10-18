@@ -74,6 +74,7 @@ ADD ./accounts.json /root/.gcp/accounts.json
 RUN /google-cloud-sdk/bin/gcloud auth activate-service-account ${JENKINS_SVC_ACCOUNT} --key-file ~/.gcp/accounts.json
 
 USER ${user}
+
 COPY jenkins-support /usr/local/bin/jenkins-support
 COPY jenkins.sh /usr/local/bin/jenkins.sh
 ENTRYPOINT ["/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
